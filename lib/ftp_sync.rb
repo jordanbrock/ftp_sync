@@ -9,7 +9,7 @@ require 'fileutils'
 # newer than that timestamp, or only download files newer than their local copy.
 class FtpSync
   
-  attr_accessor :verbose, :server, :user, :password, :passive
+  attr_accessor :verbose, :server, :user, :password, :passive, :port
   
   # Creates a new instance for accessing a ftp server 
   # requires +server+, +user+, and +password+ options
@@ -24,6 +24,7 @@ class FtpSync
     @recursion_level = 0
     @verbose = options[:verbose] || false
     @passive = options[:passive] || false
+    @port = options[:port] || 21
   end
   
   # Recursively pull down files
@@ -167,7 +168,8 @@ class FtpSync
   
   private
     def connect!
-      @connection = Net::FTP.new(@server)
+      @connection = Net::FTP.new
+      @connection.connect(@server, @port)
       @connection.passive = @passive
       @connection.login(@user, @password)
       log "Opened connection to #{@server}"
