@@ -41,10 +41,6 @@ class FtpSync
     tocopy = []
     recurse = []
 
-    # To trigger error if path doesnt exist since list will
-    # just return and empty array
-    @connection.chdir(remotepath) 
-
     @connection.list(remotepath) do |e|
       entry = Net::FTP::List.parse(e)
       
