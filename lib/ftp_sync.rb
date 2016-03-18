@@ -51,7 +51,7 @@ class FtpSync
         recurse << paths
       elsif entry.file?
         if options[:since] == :src
-          tocopy << paths unless File.exist?(paths[0]) and entry.mtime < File.mtime(paths[0]) and entry.filesize == File.size(paths[0])
+          tocopy << [*paths, entry.mtime] unless File.exist?(paths[0]) and entry.mtime <= File.mtime(paths[0]) and entry.filesize == File.size(paths[0])
         elsif options[:since].is_a?(Time)
           tocopy << paths unless entry.mtime < options[:since] and File.exist?(paths[0]) and entry.filesize == File.size(paths[0])
         else
@@ -62,10 +62,11 @@ class FtpSync
     end
     
     tocopy.each do |paths|
-      localfile, remotefile = paths
+      localfile, remotefile, mtime = paths
       unless should_ignore?(localfile)
         begin
           @connection.get(remotefile, localfile)
+          FileUtils.touch(localfile, mtime: mtime) if mtime
           log "Pulled file #{remotefile}"
         rescue Net::FTPPermError
           log "ERROR READING #{remotefile}"
