@@ -81,7 +81,8 @@ module Net
     end
     
     def chdir(dir)
-      raise Net::FTPPermError unless File.exist?(src_path(dir))
+      self.ftp_src = src_path(dir)
+      raise Net::FTPPermError unless File.exist?(ftp_src)
     end
     
     def list(dir)
