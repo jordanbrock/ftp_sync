@@ -50,6 +50,8 @@ class FtpSync
       
       paths = [ File.join(localpath, entry.basename), "#{remotepath}/#{entry.basename}".gsub(/\/+/, '/') ]
 
+      next if should_ignore?(paths[0])
+
       if entry.dir?
         recurse << paths
       elsif entry.file?
@@ -66,14 +68,12 @@ class FtpSync
     
     tocopy.each do |paths|
       localfile, remotefile = paths
-      unless should_ignore?(localfile)
-        begin
-          @connection.get(remotefile, localfile)
-          log "Pulled file #{remotefile}"
-        rescue Net::FTPPermError
-          log "ERROR READING #{remotefile}"
-          raise Net::FTPPermError unless options[:skip_errors]
-        end        
+      begin
+        @connection.get(remotefile, localfile)
+        log "Pulled file #{remotefile}"
+      rescue Net::FTPPermError
+        log "ERROR READING #{remotefile}"
+        raise Net::FTPPermError unless options[:skip_errors]
       end
     end
     
