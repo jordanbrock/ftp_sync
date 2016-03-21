@@ -46,8 +46,12 @@ module Net
         @@listing_overrides = overrides
       end
     end
-    
-    def initialize(server)
+
+    def initialize(server='test.server')
+      raise SocketError unless server == 'test.server'
+    end
+
+    def connect(server, port=FTP_PORT)
       raise SocketError unless server == 'test.server'
     end
     
